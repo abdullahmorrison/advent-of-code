@@ -2,6 +2,21 @@
 #include <fstream>
 #include <string>
 
+/**
+ * @brief concatenates the first and last digit of a string
+ * @param a string of letters and numbers
+ * @return a 2 digit number
+ */
+int getNum(std::string str){
+  int l=0;
+  int r=str.size()-1;
+  while(l<=r && (!isdigit(str[l]) || !isdigit(str[r]))){
+    if(!isdigit(str[l])) l++;
+    if(!isdigit(str[r])) r--;
+  }
+  return (str[l]-'0')*10 + (str[r]-'0');
+}
+
 int main(){
   std::ifstream file;
   file.open("input.txt");
@@ -10,20 +25,10 @@ int main(){
   if(file.is_open()){
     int sum = 0;
     while(getline(file, line)){
-      int l=0;
-      int r=line.size()-1;
-      while(l<=r && (!isdigit(line[l]) || !isdigit(line[r]))){
-        if(!isdigit(line[l])) l++;
-        if(!isdigit(line[r])) r--;
-      }
-
-      std::string numStr;
-      numStr += line[l];
-      numStr += line[r];
-      int num = stoi(numStr);
-      sum += num;
-      std::cout << line[l]<<" "<<line[r]<<" "<<sum << "\n";
+      sum += getNum(line);
     }
+ 
+    std::cout << sum;
 
     file.close();
   }else std::cout << "unable to open file";
