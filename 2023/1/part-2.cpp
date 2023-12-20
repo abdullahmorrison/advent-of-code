@@ -5,37 +5,35 @@
 #include <unordered_map>
 #include <vector>
 
-int getNum(std::string line, int i){
-  std::unordered_map<char, std::vector<std::string>> letterToNum;
-  letterToNum['o'] = {"one"};
-  letterToNum['t'] = {"two", "three"};
-  letterToNum['f'] = {"four", "five"};
-  letterToNum['s'] = {"six", "seven"};
-  letterToNum['e'] = {"eight"};
-  letterToNum['n'] = {"nine"};
+int getDigit(std::string line, int index){
+  if(isdigit(line[index])) return line[index]-'0';
 
-  std::unordered_map<std::string, int> strToNum;
-  strToNum["one"] = 1;
-  strToNum["two"] = 2;
-  strToNum["three"] = 3;
-  strToNum["four"] = 4;
-  strToNum["five"] = 5;
-  strToNum["six"] = 6;
-  strToNum["seven"] = 7;
-  strToNum["eight"] = 8;
-  strToNum["nine"] = 9;
+  std::vector<std::string> nums = {"zero","one","two","three","four","five","six","seven","eight","nine"};
 
-
-  for(auto it = letterToNum.begin(); it != letterToNum.end(); it++){
-    for(auto it2 = it->second.begin(); it2 != it->second.end(); it2++){
-      if(line.substr(i, it2->size()) == *it2){
-        return strToNum[*it2];
-      }
-    }
+  for(int i=0; i<nums.size(); i++){
+    if(line.substr(index, nums[i].size())==nums[i]) return i;
   }
-  
+
   return -1;
 }
+
+int getNum(std::string str){
+  int l=0;
+  int r=str.size()-1;
+
+  int lNum = -1;
+  int rNum = -1;
+  while(l<=r && (lNum==-1 ||rNum==-1)){
+    lNum = getDigit(str, l);
+    rNum = getDigit(str, r);
+
+    if(lNum==-1) l++;
+    if(rNum==-1) r--;
+  }
+  // std::cout<< (lNum*10)+rNum<<"\n";
+  return (lNum*10)+rNum;
+}
+
 int main(){
   std::ifstream file;
   file.open("input.txt");
@@ -45,42 +43,14 @@ int main(){
     try{
       int sum = 0;
       while(std::getline(file, line)){
-        int l=0;
-        int r=line.size()-1;
-
-        int lNum = getNum(line, l);
-        int rNum = getNum(line, r);
-        while(l<r 
-            && (!isdigit(line[l]) && lNum==-1 
-              || !isdigit(line[r]) && rNum==-1)
-        ){
-          lNum = getNum(line, l);
-          rNum = getNum(line, r);
-
-          if(!isdigit(line[l]) && lNum==-1) l++;
-          if(!isdigit(line[r]) && rNum==-1) r--;
-        }
-
-        int numStr = 0;
-        if(isdigit(line[l])) numStr = line[l]-'0';
-        else numStr = lNum;
-
-
-        if(isdigit(line[r])) numStr = numStr*10 + line[r]-'0';
-        else numStr = numStr*10 + rNum;
-        
-
-        sum += numStr;
-        std::cout << sum << "\n";
+        sum += getNum(line);
       }
+      std::cout << sum << "\n";
     }catch(std::exception& e){
       std::cout << "error: "<< e.what() << "\n";
     }
     file.close();
-  }
-  else std::cout << "Unable to open file" << std::endl;
-
-  std::cout << "Done!";
+  } else std::cout << "Unable to open file" << std::endl;
 
   std::cin.get();
   return 0;
